@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Favoritos – Mundial 2026</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="favoritos">
+  <header>
+    <div class="logo">
+      <img src="imagenes/logo.png" alt="Mis Productos Favoritos" />
+    <h1>Mis Productos Favoritos</h1>
+    </div>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="productos.html">Productos</a>
+      <a href="favoritos.html">Favoritos</a>
+    </nav>
+  </header>
+
+  <div class="favoritos-container">
+    <div class="favoritos-card">
+      <h2>Tus Favoritos</h2>
+
+      <div id="favoritos-lista"></div>
+
+      <div class="acciones-favoritos" id="acciones-favoritos" style="display: none;">
+        <button id="btn-agregar-carrito">Agregar todos al carrito 🛒</button>
+        <button id="btn-eliminar-todos">Eliminar todos ❌</button>
+      </div>
+
+      <p id="mensaje-vacio" style="display:none; margin-top: 30px;">No tienes productos favoritos aún.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Tienda Mundial. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    // Simulación de base de datos de productos
+    const productosDisponibles = [
+      { id: "camiseta-oficial", nombre: "Camiseta Oficial", descripcion: "Edición limitada del Mundial 2026.", precio: "$69.00 USD", imagen: "img/camiseta-oficial.png" },
+      { id: "balon-oficial", nombre: "Balón Mundial", descripcion: "Balón oficial del Mundial 2026.", precio: "$49.00 USD", imagen: "img/balon-oficial.png" },
+      { id: "gorra", nombre: "Gorra Tricolor", descripcion: "Apoya a tu selección con estilo.", precio: "$25.00 USD", imagen: "img/gorra.png" },
+      { id: "bufanda", nombre: "Bufanda del Aficionado", descripcion: "Ideal para alentar desde la tribuna.", precio: "$19.00 USD", imagen: "img/bufanda.png" },
+      { id: "poster", nombre: "Póster Edición Especial", descripcion: "Diseño coleccionable del Mundial.", precio: "$15.00 USD", imagen: "img/poster.png" }
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const lista = document.getElementById("favoritos-lista");
+      const mensajeVacio = document.getElementById("mensaje-vacio");
+      const accionesFavoritos = document.getElementById("acciones-favoritos");
+      const btnAgregarCarrito = document.getElementById("btn-agregar-carrito");
+      const btnEliminarTodos = document.getElementById("btn-eliminar-todos");
+
+      let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
+
+      function actualizarVista() {
+        lista.innerHTML = "";
+        if (favoritos.length === 0) {
+          mensajeVacio.style.display = "block";
+          accionesFavoritos.style.display = "none";
+          return;
+        }
+
+        mensajeVacio.style.display = "none";
+        accionesFavoritos.style.display = "flex";
+
+        const productosFavoritos = productosDisponibles.filter(prod => favoritos.includes(prod.id));
+
+        productosFavoritos.forEach(producto => {
+          const item = document.createElement("div");
+          item.classList.add("favoritos-item");
+
+          item.innerHTML = `
+            <img src="${producto.imagen}" alt="${producto.nombre}">
+            <div class="favoritos-item-info">
+              <h3>${producto.nombre}</h3>
+              <p>${producto.descripcion}</p>
+              <p class="precio">${producto.precio}</p>
+            </div>
+            <button class="btn-favorito active" data-id="${producto.id}" aria-label="Quitar de favoritos">❤️</button>
+          `;
+
+          const btnFavorito = item.querySelector(".btn-favorito");
+          btnFavorito.addEventListener("click", () => {
+            favoritos = favoritos.filter(favId => favId !== producto.id);
+            localStorage.setItem("favoritos", JSON.stringify(favoritos));
+            actualizarVista();
+          });
+
+          lista.appendChild(item);
+        });
+      }
+
+      actualizarVista();
+
+      // Agregar todos los favoritos al carrito
+      btnAgregarCarrito.addEventListener("click", () => {
+        let carritoActual = JSON.parse(localStorage.getItem("carrito")) || [];
+
+        favoritos.forEach(id => {
+          if (!carritoActual.includes(id)) {
+            carritoActual.push(id);
+          }
+        });
+
+        localStorage.setItem("carrito", JSON.stringify(carritoActual));
+        alert("¡Todos los productos favoritos han sido agregados al carrito! 🛒");
+      });
+
+      // Eliminar todos los favoritos
+      btnEliminarTodos.addEventListener("click", () => {
+        if (confirm("¿Estás seguro que quieres eliminar todos los favoritos?")) {
+          favoritos = [];
+          localStorage.setItem("favoritos", JSON.stringify(favoritos));
+          actualizarVista();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
